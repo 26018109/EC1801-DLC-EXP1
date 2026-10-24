@@ -21,45 +21,66 @@ exp1_boolean_min.vcd	VCD waveform dump generated during simulation
 
 ## Verilog Program
 ```
-module fun (
+module boolfun (
 input wire A, 
 input wire B, 
+input wire C, 
+input wire D, 
 output wire F 
 ); 
-assign F = (~A) | B ;    // F = A' + B 
-endmodule
+assign F = (~B & ~D)|(B & D) ;    // F = B'D' + BD 
+endmodul`
+
 ```
 
 ## TestBench Program
 ```
-module tb;
-    reg A, B;
-    wire F;
-    // Instantiate the design under test (DUT)
-    fun uut (
-        .A(A),
-        .B(B),
-        .F(F)
-    );
+module boolfun_tb;
 
-    initial begin
-        // ---- VCD dump setup ----
-        $dumpfile("fun.vcd");   // name of the VCD file to be generated
-        $dumpvars(0, tb);   // dump all signals in this testbench hierarchy
+reg A, B, C, D;
+wire F;
 
-        // ---- Apply all 4 input combinations ----
-        $monitor("Time=%0t A=%b B=%b | F=%b", $time, A, B, F);
+boolfun uut (
+    .A(A),
+    .B(B),
+    .C(C),
+    .D(D),
+    .F(F)
+);
 
-        A = 0; B = 0; #10;
-        A = 0; B = 1; #10;
-        A = 1; B = 0; #10;
-        A = 1; B = 1; #10;
+initial begin
 
-        #10 $finish;
-    end
+    $dumpfile("boolfun.vcd");
+    $dumpvars(0, boolfun_tb);
+
+    $monitor("Time=%0t A=%b B=%b C=%b D=%b F=%b",
+              $time, A, B, C, D, F);
+
+    A=0; B=0; C=0; D=0; #10;
+    A=0; B=0; C=0; D=1; #10;
+    A=0; B=0; C=1; D=0; #10;
+    A=0; B=0; C=1; D=1; #10;
+
+    A=0; B=1; C=0; D=0; #10;
+    A=0; B=1; C=0; D=1; #10;
+    A=0; B=1; C=1; D=0; #10;
+    A=0; B=1; C=1; D=1; #10;
+
+    A=1; B=0; C=0; D=0; #10;
+    A=1; B=0; C=0; D=1; #10;
+    A=1; B=0; C=1; D=0; #10;
+    A=1; B=0; C=1; D=1; #10;
+
+    A=1; B=1; C=0; D=0; #10;
+    A=1; B=1; C=0; D=1; #10;
+    A=1; B=1; C=1; D=0; #10;
+    A=1; B=1; C=1; D=1; #10;
+
+    $finish;
+end
 
 endmodule
-``` 
+```
 ## Truth Table
  
 <img width="795" height="311" alt="image" src="https://github.com/user-attachments/assets/dd4ba5b9-016b-4ae5-a693-f309c60c4c0e" />
@@ -97,8 +118,9 @@ A DVE environment will open.
 
 
 ## OUTPUT
+<img width="1920" height="986" alt="Screenshot 2026-10-24 152752" src="https://github.com/user-attachments/assets/cc6cb241-517c-48ee-92e5-db0bf330d8f2" />
 
-<img width="1919" height="1080" alt="Screenshot 2026-10-14 152941" src="https://github.com/user-attachments/assets/189b1231-8697-4377-82fb-875993477d65" />
+
 
 
 The design was compiled and simulated using Synopsys VCS, and the functionality was verified using DVE waveform analysis.
